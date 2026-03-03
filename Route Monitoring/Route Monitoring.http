@@ -1,0 +1,6 @@
+@Route_Monitoring_HostAddress = http://localhost:5173
+
+GET {{Route_Monitoring_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
