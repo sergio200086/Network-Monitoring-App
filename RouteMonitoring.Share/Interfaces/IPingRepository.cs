@@ -10,5 +10,7 @@ namespace RouteMonitoring.Domain.Interfaces
     public interface IPingRepository
     {
         Task<bool> SavePingAsync(ResponseFormat ping);
+
+        Task<ResponseFormat?> GetAsync(Guid id);
     }
 }

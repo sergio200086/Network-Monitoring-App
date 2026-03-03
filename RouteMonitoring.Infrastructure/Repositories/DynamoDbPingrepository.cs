@@ -42,8 +42,32 @@ namespace RouteMonitoring.Infrastructure.Repositories
             }
             catch (Exception)
             {
+                
                 return false;
             }
+        }
+
+        public async Task<ResponseFormat?> GetAsync(Guid id)
+        {
+            var request = new GetItemRequest
+            {
+                TableName = _databaseSettings.Value.ToString(),
+                //Key is pk+sk
+                Key = new Dictionary<string, AttributeValue>
+                {
+                    {"pk", new AttributeValue {S = id.ToString()} },
+                    {"sk", new AttributeValue {S = id.ToString()} }
+                }
+            };
+
+            GetItemResponse response = await _dynamoDB.GetItemAsync(request);
+            if (response.Item.Count == 0)
+            {
+                return null;
+            }
+
+            Document itemAsDocument = Document.FromAttributeMap(response.Item);
+            return JsonConvert.DeserializeObject<ResponseFormat>(itemAsDocument.ToJson());
         }
     }
 }
