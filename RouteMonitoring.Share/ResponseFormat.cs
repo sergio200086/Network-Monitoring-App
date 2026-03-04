@@ -8,10 +8,10 @@ namespace RouteMonitoring.Domain
         public ResponseFormat() => Id = Guid.NewGuid().ToString();
 
         [JsonPropertyName("pk")]
-        public string pk => Id;
+        public string pk => $"DEVICE{Id}";
 
         [JsonPropertyName("sk")]
-        public string  sk => pk;
+        public string  sk { get; set; }
 
         [JsonPropertyName("Id")]
         public string Id { get; set; }
@@ -20,7 +20,7 @@ namespace RouteMonitoring.Domain
         public string? DeviceName { get; set; }
 
         [JsonPropertyName("IpAddress")]
-        public string? IpAddress { get; set; }
+        public string IpAddress { get; set; }
 
         [JsonPropertyName("Status")]
         public string? Status { get; set; }

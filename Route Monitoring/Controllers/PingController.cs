@@ -12,10 +12,11 @@ namespace Route_Monitoring.Controllers
     public class PingController : ControllerBase
     {
         private readonly IPingRepository _pingrepository;
-
-        public PingController(IPingRepository pingRepository)
+        private readonly IPingService _pingService;
+        public PingController(IPingRepository pingRepository, IPingService pingservice)
         {
             _pingrepository = pingRepository;
+            _pingService = pingservice;
         }
 
         [HttpPost("check-status/{ip}")]
@@ -26,22 +27,25 @@ namespace Route_Monitoring.Controllers
                 return BadRequest("The Ip Address is required");
             try
             {
-                using Ping pingSender = new Ping();
-                string host = ip;
-                int timeout = 2000;
-                PingReply pingReply = await pingSender.SendPingAsync(host, timeout);
+                var pingResult = await _pingService.SendPingAsync(ip);
 
-                if (pingReply.Status != IPStatus.Success)
-                    throw new Exception("fake");
-                
-                ResponseFormat responseFormat = new ResponseFormat();
-                responseFormat.DeviceName = "Unknown";
-                responseFormat.Status = pingReply.Status.ToString();
-                responseFormat.IpAddress = ip;
-                responseFormat.ResponseTimeMs = pingReply.RoundtripTime;
-                responseFormat.TimeStamp = DateTime.UtcNow;
+                if (pingResult == null)
+                {
+                    return BadRequest("The ping was not succesfull");
+                }
 
-                var isSaved = await _pingrepository.SavePingAsync(responseFormat);
+                var responseFormat = new ResponseFormat
+                {
+                    IpAddress = ip,
+                    DeviceName = "Manual Check",
+                    Status = pingResult.Status.ToString(),
+                    ResponseTimeMs = pingResult.RoundtripTime,
+                    TimeStamp = DateTime.UtcNow,
+                    Id = "MANUAL-CHECK",
+                    sk = $"PING#{DateTime.UtcNow:yyyy-MM-ddTHH:mm:ss}"
+                };
+
+                var isSaved = await _pingrepository.SaveItemAsync(responseFormat);
 
                 if (!isSaved)
                 {

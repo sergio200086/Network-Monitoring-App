@@ -20,11 +20,11 @@ namespace RouteMonitoring.Infrastructure.Repositories
             _databaseSettings = databaseSettings;
         }
 
-        public async Task<bool> SavePingAsync(ResponseFormat ping)
+        public async Task<bool> SaveItemAsync(ResponseFormat item)
         {
             try
             {
-                var pingAsJson = JsonConvert.SerializeObject(ping);
+                var pingAsJson = JsonConvert.SerializeObject(item);
                 var itemAsDocument = Document.FromJson(pingAsJson);
                 var itemAsAttributeMap = itemAsDocument.ToAttributeMap();
 
@@ -37,12 +37,9 @@ namespace RouteMonitoring.Infrastructure.Repositories
                 var response = await _dynamoDB.PutItemAsync(request);
 
                 return response.HttpStatusCode == System.Net.HttpStatusCode.OK;
-
-
             }
             catch (Exception)
             {
-                
                 return false;
             }
         }
@@ -68,6 +65,34 @@ namespace RouteMonitoring.Infrastructure.Repositories
 
             Document itemAsDocument = Document.FromAttributeMap(response.Item);
             return JsonConvert.DeserializeObject<ResponseFormat>(itemAsDocument.ToJson());
+        }
+
+        public async Task<List<ResponseFormat>> GetAllDevicesAsync()
+        {
+            var devices = new List<ResponseFormat>();
+            var request = new ScanRequest
+            {
+                TableName = _databaseSettings.Value.ToString(),
+                FilterExpression = "sk = :metadataValue",
+                ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+                {
+                    { ":metadataValue", new AttributeValue { S = "METADATA" } }
+                }
+            };
+
+            var response = await _dynamoDB.ScanAsync(request);
+            foreach(var item in response.Items)
+            {
+                devices.Add(new ResponseFormat
+                {
+                    Id = item["Id"].S,
+                    DeviceName = item.TryGetValue("Name", out AttributeValue? value) ? value.S : "Unknown",
+                    IpAddress = item["IpAddress"].S,
+                });
+            }
+
+            return devices;
+
         }
     }
 }
