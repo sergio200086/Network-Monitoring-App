@@ -9,6 +9,6 @@ namespace RouteMonitoring.Domain.Interfaces
 {
     public interface IPingService
     {
-        Task<PingReply?> SendPingAsync(string ip);
+        Task<ResponseFormat> SendPingAsync(string ip);
     }
 }

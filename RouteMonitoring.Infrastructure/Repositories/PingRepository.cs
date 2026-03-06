@@ -6,9 +6,8 @@ namespace RouteMonitoring.Infrastructure.Repositories
 {
     public class PingRepository : IPingService
     {
-        public PingRepository() { }
 
-        public async Task<PingReply?> SendPingAsync (string ip)
+        public async Task<ResponseFormat> SendPingAsync (string ip)
         {
             using Ping pingSender = new();
             string host = ip;
@@ -18,7 +17,14 @@ namespace RouteMonitoring.Infrastructure.Repositories
             if (pingReply.Status != IPStatus.Success)
                 return null;
 
-            return pingReply;
+            return new ResponseFormat
+            {
+                IpAddress = ip,
+                Status = pingReply.Status.ToString(),
+                ResponseTimeMs = pingReply.RoundtripTime,
+                TimeStamp = DateTime.UtcNow,
+                sk = $"PING#{DateTime.UtcNow:yyyy-MM-ddTHH:mm:ss}"
+            };
         }
     }
 }

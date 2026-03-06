@@ -20,39 +20,29 @@ namespace Route_Monitoring.Controllers
         }
 
         [HttpPost("check-status/{ip}")]
-        //Request ping to any ip direction
         public async Task<IActionResult> PostPing(string ip)
         {
             if (string.IsNullOrWhiteSpace(ip))
                 return BadRequest("The Ip Address is required");
             try
             {
-                var pingResult = await _pingService.SendPingAsync(ip);
+                ResponseFormat pingResult = await _pingService.SendPingAsync(ip);
 
                 if (pingResult == null)
                 {
                     return BadRequest("The ping was not succesfull");
                 }
 
-                var responseFormat = new ResponseFormat
-                {
-                    IpAddress = ip,
-                    DeviceName = "Manual Check",
-                    Status = pingResult.Status.ToString(),
-                    ResponseTimeMs = pingResult.RoundtripTime,
-                    TimeStamp = DateTime.UtcNow,
-                    Id = "MANUAL-CHECK",
-                    sk = $"PING#{DateTime.UtcNow:yyyy-MM-ddTHH:mm:ss}"
-                };
+                pingResult.DeviceName = "Manual Check";
 
-                var isSaved = await _pingrepository.SaveItemAsync(responseFormat);
+                var isSaved = await _pingrepository.SaveItemAsync(pingResult);
 
                 if (!isSaved)
                 {
                     return StatusCode(500, "Ping made but not able to saved it into AWS");
                 }
 
-                return Ok(responseFormat);
+                return Ok(pingResult);
 
 
             }
@@ -63,6 +53,7 @@ namespace Route_Monitoring.Controllers
 
         }
 
+        [HttpGet("get-ping")]
         public async Task<IActionResult> GetPing(Guid id)
         {
             try

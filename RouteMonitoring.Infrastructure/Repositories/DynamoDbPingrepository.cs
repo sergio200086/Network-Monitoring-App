@@ -24,8 +24,8 @@ namespace RouteMonitoring.Infrastructure.Repositories
         {
             try
             {
-                var pingAsJson = JsonConvert.SerializeObject(item);
-                var itemAsDocument = Document.FromJson(pingAsJson);
+                var itemAsJson = JsonConvert.SerializeObject(item);
+                var itemAsDocument = Document.FromJson(itemAsJson);
                 var itemAsAttributeMap = itemAsDocument.ToAttributeMap();
 
                 var request = new PutItemRequest
@@ -48,7 +48,7 @@ namespace RouteMonitoring.Infrastructure.Repositories
         {
             var request = new GetItemRequest
             {
-                TableName = _databaseSettings.Value.ToString(),
+                TableName = _databaseSettings.Value.TableName.ToString(),
                 //Key is pk+sk
                 Key = new Dictionary<string, AttributeValue>
                 {
@@ -72,7 +72,7 @@ namespace RouteMonitoring.Infrastructure.Repositories
             var devices = new List<ResponseFormat>();
             var request = new ScanRequest
             {
-                TableName = _databaseSettings.Value.ToString(),
+                TableName = _databaseSettings.Value.TableName.ToString(),
                 FilterExpression = "sk = :metadataValue",
                 ExpressionAttributeValues = new Dictionary<string, AttributeValue>
                 {
@@ -86,7 +86,7 @@ namespace RouteMonitoring.Infrastructure.Repositories
                 devices.Add(new ResponseFormat
                 {
                     Id = item["Id"].S,
-                    DeviceName = item.TryGetValue("Name", out AttributeValue? value) ? value.S : "Unknown",
+                    DeviceName = item.TryGetValue("DeviceName", out AttributeValue? value) ? value.S : "Unknown",
                     IpAddress = item["IpAddress"].S,
                 });
             }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualBasic;
+using RouteMonitoring.Domain;
 using RouteMonitoring.Domain.Interfaces;
 
 namespace Route_Monitoring.Services
@@ -7,9 +8,9 @@ namespace Route_Monitoring.Services
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger _logger;
-        private const int intervalMinutes = 5;
+        private const int intervalMinutes = 30;
 
-        public MonitoringWorkerService(IServiceProvider serviceProvider, ILogger logger)
+        public MonitoringWorkerService(IServiceProvider serviceProvider, ILogger<MonitoringWorkerService> logger)
         {
             _serviceProvider = serviceProvider;
             _logger = logger;
@@ -31,12 +32,13 @@ namespace Route_Monitoring.Services
 
                         foreach (var device in devices)
                         {
-                            var pingResponse = await pingService.SendPingAsync(device.IpAddress);
+                            ResponseFormat pingResponse = await pingService.SendPingAsync(device.IpAddress);
 
                             if (pingResponse != null)
                             {
-                                device.Status = pingResponse.Status.ToString();
-                                device.ResponseTimeMs = pingResponse.RoundtripTime;
+
+                                device.Status = pingResponse.Status;
+                                device.ResponseTimeMs = pingResponse.ResponseTimeMs;
                                 device.TimeStamp = DateTime.UtcNow;
                                 device.sk = $"PING#{device.TimeStamp:yyyy-MM-ddTHH:mm:ss}";
 
@@ -49,7 +51,7 @@ namespace Route_Monitoring.Services
                 {
                     _logger.LogError(ex, "❌ Error in the monitoring loop.");
                 }
-                await Task.Delay(TimeSpan.FromMinutes(intervalMinutes), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(intervalMinutes), stoppingToken);
             }
         }
     }

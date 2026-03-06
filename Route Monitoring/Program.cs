@@ -2,6 +2,7 @@ using Amazon.DynamoDBv2;
 using RouteMonitoring.Domain.Settings;
 using RouteMonitoring.Domain.Interfaces;
 using RouteMonitoring.Infrastructure.Repositories;
+using Route_Monitoring.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,8 @@ builder.Services.AddSingleton<IAmazonDynamoDB>(_ => new AmazonDynamoDBClient(Ama
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IPingRepository, DynamoDbPingrepository>();
+builder.Services.AddScoped<IPingService, PingRepository>();
+builder.Services.AddHostedService<MonitoringWorkerService>();
 
 var app = builder.Build();
 
