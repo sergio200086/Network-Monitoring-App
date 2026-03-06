@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using RouteMonitoring.Domain;
 using RouteMonitoring.Domain.Interfaces;
 using RouteMonitoring.Domain.Settings;
+using System.Linq.Expressions;
 
 namespace RouteMonitoring.Infrastructure.Repositories
 {
@@ -51,17 +52,19 @@ namespace RouteMonitoring.Infrastructure.Repositories
                 TableName = _databaseSettings.Value.TableName.ToString(),
                 //Key is pk+sk
                 Key = new Dictionary<string, AttributeValue>
-                {
-                    {"pk", new AttributeValue {S = id.ToString()} },
-                    {"sk", new AttributeValue {S = id.ToString()} }
+                { 
+                    {"pk", new AttributeValue {S = "DEVICE#" + id.ToString()} },
+                    {"sk", new AttributeValue { S = "METADATA" } },
+
                 }
             };
 
             GetItemResponse response = await _dynamoDB.GetItemAsync(request);
-            if (response.Item.Count == 0)
-            {
+            if (response.Item == null)
                 return null;
-            }
+
+            if (response.Item.Count == 0)
+                return null;
 
             Document itemAsDocument = Document.FromAttributeMap(response.Item);
             return JsonConvert.DeserializeObject<ResponseFormat>(itemAsDocument.ToJson());

@@ -8,7 +8,7 @@ namespace Route_Monitoring.Services
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger _logger;
-        private const int intervalMinutes = 30;
+        private const int intervalMinutes = 5;
 
         public MonitoringWorkerService(IServiceProvider serviceProvider, ILogger<MonitoringWorkerService> logger)
         {
@@ -51,7 +51,7 @@ namespace Route_Monitoring.Services
                 {
                     _logger.LogError(ex, "❌ Error in the monitoring loop.");
                 }
-                await Task.Delay(TimeSpan.FromSeconds(intervalMinutes), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(intervalMinutes), stoppingToken);
             }
         }
     }

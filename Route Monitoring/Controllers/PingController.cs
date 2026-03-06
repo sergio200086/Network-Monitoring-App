@@ -53,23 +53,8 @@ namespace Route_Monitoring.Controllers
 
         }
 
-        [HttpGet("get-ping")]
-        public async Task<IActionResult> GetPing(Guid id)
-        {
-            try
-            {
-                var isGotten = await _pingrepository.GetAsync(id);
-                if (isGotten!= null)
-                {
-                    return Ok(isGotten);
-                }
-                return BadRequest();
-            }
-            catch (Exception)
-            {
+        
 
-                throw;
-            }
-        }
+        
     }
 }

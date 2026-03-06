@@ -6,7 +6,6 @@ namespace RouteMonitoring.Infrastructure.Repositories
 {
     public class PingRepository : IPingService
     {
-
         public async Task<ResponseFormat> SendPingAsync (string ip)
         {
             using Ping pingSender = new();
