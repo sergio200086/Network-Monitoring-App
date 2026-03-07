@@ -25,7 +25,10 @@ namespace Route_Monitoring.Services
                 {
                     using (var scope = _serviceProvider.CreateScope())
                     {
+
                         var deviceRepo = scope.ServiceProvider.GetRequiredService<IPingRepository>();
+
+
                         var pingService = scope.ServiceProvider.GetRequiredService<IPingService>();
 
                         var devices = await deviceRepo.GetAllDevicesAsync();
@@ -36,12 +39,10 @@ namespace Route_Monitoring.Services
 
                             if (pingResponse != null)
                             {
-
                                 device.Status = pingResponse.Status;
                                 device.ResponseTimeMs = pingResponse.ResponseTimeMs;
-                                device.TimeStamp = DateTime.UtcNow;
-                                device.sk = $"PING#{device.TimeStamp:yyyy-MM-ddTHH:mm:ss}";
-
+                                device.TimeStamp = pingResponse.TimeStamp;
+                                device.sk = pingResponse.sk;
                                 await deviceRepo.SaveItemAsync(device);
                             }
                         }

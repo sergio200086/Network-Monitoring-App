@@ -16,13 +16,16 @@ namespace RouteMonitoring.Infrastructure.Repositories
             if (pingReply.Status != IPStatus.Success)
                 return null;
 
+            DateTime pingMoment = DateTime.UtcNow;
+
+            string ISODate = pingMoment.ToString("yyyy-MM-ddTHH:mm:ss");
+
             return new ResponseFormat
             {
-                IpAddress = ip,
                 Status = pingReply.Status.ToString(),
                 ResponseTimeMs = pingReply.RoundtripTime,
-                TimeStamp = DateTime.UtcNow,
-                sk = $"PING#{DateTime.UtcNow:yyyy-MM-ddTHH:mm:ss}"
+                TimeStamp = ISODate,
+                sk = $"PING#{ISODate}"
             };
         }
     }

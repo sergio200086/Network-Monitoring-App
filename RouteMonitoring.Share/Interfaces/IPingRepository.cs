@@ -14,6 +14,8 @@ namespace RouteMonitoring.Domain.Interfaces
         Task<ResponseFormat?> GetAsync(Guid id);
 
         Task<List<ResponseFormat>> GetAllDevicesAsync();
-        
+
+        Task<List<ResponseFormat>> GetPingByDate(string id, string date);
+
     }
 }

@@ -53,8 +53,15 @@ namespace Route_Monitoring.Controllers
 
         }
 
-        
+        [HttpGet("get-pings-by-date/{date}/{id}")]
+        public async Task<IActionResult> GetPingByDate (string id, string date)
+        {
+            var filteredPings = await _pingrepository.GetPingByDate(id, date);
 
-        
+            if (filteredPings == null || filteredPings.Count == 0)
+                return NotFound("No pings found for the specified date and device.");
+
+            return Ok(filteredPings);
+        }
     }
 }

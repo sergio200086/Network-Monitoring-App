@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using RouteMonitoring.Domain;
 using RouteMonitoring.Domain.Interfaces;
 using RouteMonitoring.Domain.Settings;
-using System.Linq.Expressions;
+using Amazon.Runtime.Internal.Util;
 
 namespace RouteMonitoring.Infrastructure.Repositories
 {
@@ -96,6 +96,45 @@ namespace RouteMonitoring.Infrastructure.Repositories
 
             return devices;
 
+        }
+
+
+        /// <summary>
+        /// Get the pings under the provided date.
+        /// </summary>
+        /// <param name="id">The ID of the registered device. </param>
+        /// <param name="date">The date and hour of the desired range.</param>
+        /// <returns>A List <see cref="ResponseFormat"/> containing the pings filtered.</returns>
+        public async Task<List<ResponseFormat>> GetPingByDate(string id, string date)
+        {
+            var pings = new List<ResponseFormat>();
+            var request = new ScanRequest
+            {
+                TableName = _databaseSettings.Value.TableName.ToString(),
+                FilterExpression = "pk = :id AND sk > :date",
+                ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+                {
+                    {":id", new AttributeValue {S = "DEVICE#" + id } },
+                    {":date", new AttributeValue { S = "PING#" + date } }
+                }
+            };
+
+            var response = await _dynamoDB.ScanAsync(request);
+            foreach (var item in response.Items)
+            {
+                pings.Add(new ResponseFormat
+                {
+                    Id = item["Id"].S,
+                    sk = item["sk"].S,
+                    DeviceName = item.TryGetValue("DeviceName", out AttributeValue? value) ? value.S : "Unknown",
+                    IpAddress = item["IpAddress"].S,
+                    ResponseTimeMs = item.TryGetValue("ResponseTimeMs", out AttributeValue? responseTimeValue) && long.TryParse(responseTimeValue.N, out long responseTime) ? responseTime : 0,
+                    Status = item.TryGetValue("Status", out AttributeValue? statusValue) ? statusValue.S : "Unknown",
+                    TimeStamp = item.TryGetValue("TimeStamp", out AttributeValue? TimeStampValue) ? TimeStampValue.S : "Unknown"
+                });
+            }
+
+            return pings;
         }
     }
 }

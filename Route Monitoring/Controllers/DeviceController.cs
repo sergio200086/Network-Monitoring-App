@@ -42,7 +42,7 @@ namespace Route_Monitoring.Controllers
             try
             {
                 deviceInfo.sk = "METADATA";
-                deviceInfo.TimeStamp = DateTime.Now;
+                deviceInfo.TimeStamp = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss");
 
                 var isTrue = await _pingrepository.SaveItemAsync(deviceInfo);
                 if (!isTrue)

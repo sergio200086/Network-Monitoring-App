@@ -29,6 +29,6 @@ namespace RouteMonitoring.Domain
         public long ResponseTimeMs { get; set; }
 
         [JsonPropertyName("TimeStamp")]
-        public DateTime TimeStamp { get; set; }
+        public string? TimeStamp { get; set; }
     }
 }
