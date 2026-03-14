@@ -53,6 +53,13 @@ namespace Route_Monitoring.Controllers
 
         }
 
+        /// <summary>
+        /// Retrieves pings for a specified device on a given date.
+        /// </summary>
+        /// <param name="id">The unique identifier of the device.</param>
+        /// <param name="date">The date for which to retrieve pings, in a supported date format.</param>
+        /// <returns>An HTTP 200 response with the list of pings if found; otherwise, an HTTP 404 response.</returns>
+        
         [HttpGet("get-pings-by-date/{date}/{id}")]
         public async Task<IActionResult> GetPingByDate (string id, string date)
         {
