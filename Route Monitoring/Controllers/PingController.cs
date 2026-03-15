@@ -13,10 +13,13 @@ namespace Route_Monitoring.Controllers
     {
         private readonly IPingRepository _pingrepository;
         private readonly IPingService _pingService;
-        public PingController(IPingRepository pingRepository, IPingService pingservice)
+        private readonly IAnalyticsService _analyticsService;
+
+        public PingController(IPingRepository pingRepository, IPingService pingservice, IAnalyticsService analyticsService)
         {
             _pingrepository = pingRepository;
             _pingService = pingservice;
+            _analyticsService = analyticsService;
         }
 
         [HttpPost("check-status/{ip}")]
@@ -68,7 +71,10 @@ namespace Route_Monitoring.Controllers
             if (filteredPings == null || filteredPings.Count == 0)
                 return NotFound("No pings found for the specified date and device.");
 
-            return Ok(filteredPings);
+            var pingWithNetStats = _analyticsService.CalculateNetworkParams(filteredPings);
+
+
+            return Ok(pingWithNetStats);
         }
     }
 }

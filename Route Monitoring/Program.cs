@@ -20,6 +20,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IPingRepository, DynamoDbPingrepository>();
 builder.Services.AddScoped<IPingService, PingRepository>();
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddHostedService<MonitoringWorkerService>();
 
 var app = builder.Build();
